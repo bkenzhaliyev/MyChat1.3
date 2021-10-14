@@ -1,0 +1,53 @@
+<?language javascript?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<BorderPane fx:controller="Client.Controller"
+            xmlns:fx="http://javafx.com/fxml">
+    <stylesheets>
+        <URL value="@/css/style.css"/>
+    </stylesheets>
+
+    <top>
+        <MenuBar>
+            <Menu text="Настройки">
+                <MenuItem text="Очистить чат" onAction="#btnClearChat"/>
+                <MenuItem text="Выход" onAction="#clickClose"/>
+            </Menu>
+        </MenuBar>
+
+    <HBox fx:id="authPanel">
+        <TextField fx:id="loginField" promptText="login" HBox.hgrow="ALWAYS"/>
+        <PasswordField fx:id="passwordField" promptText="password" HBox.hgrow="ALWAYS"
+                       onAction="#tryToAuth"/>
+        <Button text="auth" minWidth="80" onAction="#tryToAuth"/>
+    </HBox>
+</top>
+
+    <center>
+        <TextArea fx:id="MsgArea" promptText="Переписка" editable="false" wrapText="true"/>
+    </center>
+    <bottom>
+        <HBox fx:id="msgPanel" visible="false" managed="false" >
+            <TextField fx:id="MsgField" minWidth="467" promptText="Введите сообщение" onAction="#btnSendMsg"/>
+            <fx:script>
+                MsgField.textProperty()["addListener(javafx.beans.value.ChangeListener)"](
+                function(observable, oldValue, newValue){
+                controller.js2controller(observable, oldValue, newValue);
+                });
+            </fx:script>
+            <Button fx:id="SendMsg" onAction="#btnSendMsg" disable="true">
+                <graphic>
+                    <ImageView fitHeight="17.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="/image/send.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
+        </HBox>
+    </bottom>
+</BorderPane>
