@@ -16,7 +16,12 @@ public class Server {
 
     public Server() {
         clients = new CopyOnWriteArrayList<>();
-        authService = new SimpleAuthService();
+//        authService = new SimpleAuthService();
+        if (!SQLHandler.connect()) {
+            throw new RuntimeException("Не удалось подключиться к БД");
+        }
+        authService = new DbAuthService();
+
         try {
             server = new ServerSocket(PORT);
             System.out.println("Server started!");
@@ -29,6 +34,7 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            SQLHandler.disconnect();
             try {
                 server.close();
             } catch (IOException e) {
@@ -40,7 +46,7 @@ public class Server {
     public void broadcastMsg(ClientHandler sender, String msg) {
         String message = String.format("[%s]: %s", sender.getNickname(), msg);
         for (ClientHandler c : clients) {
-                c.sendMsg(message);
+            c.sendMsg(message);
         }
     }
 
@@ -55,12 +61,12 @@ public class Server {
                 return;
             }
         }
-        sender.sendMsg("Пользователь не найден: "+ receiver);
+        sender.sendMsg("Пользователь не найден: " + receiver);
     }
 
     public boolean isLoginAuthenticated(String login) {
         for (ClientHandler c : clients) {
-            if(c.getLogin().equals(login)){
+            if (c.getLogin().equals(login)) {
                 return true;
             }
         }
