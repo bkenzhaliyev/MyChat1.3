@@ -22,7 +22,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+
+import static Client.MsgProcess.readMessage;
+import static Client.MsgProcess.writeMessage;
 
 public class Controller  implements Initializable {
     @FXML
@@ -54,6 +58,7 @@ public class Controller  implements Initializable {
     private Stage stage;
     private Stage regStage;
     private regController regController;
+    private String login;
 
 @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -95,6 +100,8 @@ public class Controller  implements Initializable {
                             if (str.startsWith("/authok")) {
                                 nickname = str.split("\\s")[1];
                                 setAuthenticated(true);
+                                MsgArea.appendText("История сообщений..." + "\n");
+                                readMsgHistory(login);
                                 break;
                             }
                             if (str.equals("/regok")) {
@@ -105,6 +112,7 @@ public class Controller  implements Initializable {
                             }
                         } else {
                             MsgArea.appendText(str + "\n");
+                            System.out.println(str);
                         }
                     }
                     // цикл работы
@@ -116,6 +124,7 @@ public class Controller  implements Initializable {
                             }
                             if (str.startsWith("/clientlist ")) {
                                 String[] token = str.split("\\s+");
+                                System.out.println("3. " + token[0] + " , " + token[1]  );
                                 Platform.runLater(() -> {
                                     clientList.getItems().clear();
                                     for (int i = 1; i < token.length; i++) {
@@ -125,6 +134,8 @@ public class Controller  implements Initializable {
                             }
                         } else {
                             MsgArea.appendText(str + "\n");
+                            writeMessage(login, str);
+//                            System.out.println("2. Логин" + this.login + " " + str);
                         }
                     }
 
@@ -165,6 +176,7 @@ public class Controller  implements Initializable {
         }
 
         String login = loginField.getText().trim();
+        this.login = login;
         String password = passwordField.getText().trim();
         String msg = String.format("/auth %s %s", login, password);
 
@@ -262,5 +274,21 @@ public class Controller  implements Initializable {
     public void clientListClick(MouseEvent mouseEvent) {
         String receiver = (String) clientList.getSelectionModel().getSelectedItem();
         MsgField.setText(String.format("/w %s ", receiver));
+    }
+
+    public void readMsgHistory(String file){
+        ArrayList<String> msg = new ArrayList<String>();
+        try {
+            msg = readMessage("1/" + file + ".txt");
+            for (int i = 0; i < msg.size(); i++) {
+                MsgArea.appendText(msg.get(i) + "\n");
+            }
+        } catch (IOException e){
+            System.out.println("Не удалось прочитать файл");
+        } catch (ClassNotFoundException e){
+
+        }
+
+
     }
 }

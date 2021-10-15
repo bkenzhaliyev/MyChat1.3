@@ -7,6 +7,7 @@ public class SQLHandler {
     private static PreparedStatement psGetNickname;
     private static PreparedStatement psRegistration;
     private static PreparedStatement psChangeNick;
+    private static PreparedStatement psGetLogin;
 
     private static PreparedStatement psAddMessage;
     private static PreparedStatement psGetMessageForNick;
