@@ -2,23 +2,36 @@ package Server;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class ClientHandler {
     Socket socket;
     Server server;
     DataInputStream in;
     DataOutputStream out;
+    private static final Logger logger = Logger.getLogger(Server.class.getName());
 
     private boolean authenticated;
     private String nickname;
     private String login;
 
     public ClientHandler(Socket socket, Server server) {
+
+        LogManager manager = LogManager.getLogManager();
+        try {
+            manager.readConfiguration(new FileInputStream("logging.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         try {
             this.socket = socket;
             this.server = server;
@@ -38,7 +51,8 @@ public class ClientHandler {
                         String str = in.readUTF();
                         if (str.equals("/end")) {
                             sendMsg("/end");
-                            System.out.println("Client disconnected");
+                            logger.log(Level.INFO, "Client disconnected", true);
+//                            System.out.println("Client disconnected");
                             break;
                         }
                         if (str.startsWith("/auth ")) {
@@ -53,10 +67,12 @@ public class ClientHandler {
                                     authenticated = true;
                                     break;
                                 } else {
-                                    sendMsg("Пользователь с таким логином уже авторизован...");
+                                    logger.log(Level.INFO, "Пользователь с таким логином уже авторизован: " + nickname, true);
+//                                    sendMsg("Пользователь с таким логином уже авторизован...");
                                 }
                             } else {
-                                sendMsg("Неверный логин/пароль");
+                                logger.log(Level.INFO, "Неверный логин/пароль " + login, true);
+//                                sendMsg("Неверный логин/пароль");
                             }
                         }
 
@@ -84,7 +100,8 @@ public class ClientHandler {
 //                            Выход из чата
                             if (str.equals("/end")) {
                                 sendMsg("/end");
-                                System.out.println("Client disconnected");
+                                logger.log(Level.INFO, "Client disconnected", true);
+//                                System.out.println("Client disconnected");
                                 break;
 //                          Отправка сообщения конкретному пользователью
                             } else if (str.startsWith("/w")) {
@@ -101,7 +118,8 @@ public class ClientHandler {
 
                     }
                 } catch (SocketTimeoutException e){
-                    System.out.println("Истекло время ожидания авторизации...");
+//                    System.out.println("Истекло время ожидания авторизации...");
+                    logger.log(Level.INFO, "Истекло время ожидания авторизации...", true);
                     sendMsg("/end");
                 } catch (IOException e) {
                     e.printStackTrace();
