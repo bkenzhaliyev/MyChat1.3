@@ -16,4 +16,5 @@ public interface AuthService {
      * false если логин или никнейм уже заняты
      */
     boolean registration(String login, String password, String nickname);
+    boolean changeNick(String oldNickname, String newNickname);
 }
